@@ -69,6 +69,7 @@ public class MainApp extends Application {
 	try {
 
 		input = new FileInputStream("app.properties");
+                
 
 		// load a properties file
 		prop.load(input);
