@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="324.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.viremp.employeemanagement.controllers.SettingsController">
+   <children>
+      <Label layoutX="14.0" layoutY="14.0" text="%languageLabel" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <JFXComboBox fx:id="languageCombo" layoutX="125.0" layoutY="8.0" onAction="#languageChanged" prefHeight="25.0" prefWidth="133.0" />
+   </children>
+</AnchorPane>
