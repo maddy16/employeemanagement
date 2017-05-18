@@ -17,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import com.viremp.employeemanagement.MainApp;
+import javafx.scene.control.Label;
 
 /**
  * FXML Controller class
@@ -25,49 +26,74 @@ import com.viremp.employeemanagement.MainApp;
  */
 public class MainSceneController implements Initializable {
 
-    /**
-     * Initializes the controller class.
-     */
+    public static MainSceneController mainController;
     @FXML
     private VBox sideBar;
     @FXML
     private AnchorPane contentPane;
+    @FXML
+    private Label error;
     ResourceBundle bundle;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         bundle = rb;
+        mainController = this;
     }
 
     @FXML
     void settingsBtnClicked(ActionEvent event) throws IOException {
         toggleButton(event);
-        resetContentArea();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/SettingsScene.fxml"),bundle);
-        Parent root = loader.load();
-        fitParentAnchor(root);
-        contentPane.getChildren().add(root);
-
+        MainApp.loadScene("/fxml/SettingsScene.fxml", null, contentPane, bundle);
     }
-    
+
+    @FXML
+    void employeesBtnClicked(ActionEvent event) throws IOException{
+        toggleButton(event);
+        MainApp.loadScene("/fxml/EmployeeScene.fxml", null, contentPane, bundle);
+    }
+
     void toggleButton(ActionEvent event) {
         resetSideButtons();
         JFXButton btn = (JFXButton) event.getSource();
-        btn.setStyle("-fx-background-color: #2196F3;");
+        btn.setStyle("-fx-background-color: #4CAF50;");
     }
+
     void resetSideButtons() {
         sideBar.getChildren().forEach((child) -> {
             child.setStyle("-fx-background-color:  #5C6BC0;");
         });
     }
+
     void resetContentArea() {
         contentPane.getChildren().clear();
     }
+
     void fitParentAnchor(Parent root) {
         AnchorPane.setBottomAnchor(root, 0.0);
         AnchorPane.setLeftAnchor(root, 0.0);
         AnchorPane.setTopAnchor(root, 0.0);
         AnchorPane.setRightAnchor(root, 0.0);
+    }
+
+    public void showError(String msg) {
+        error.getStyleClass().remove("success");
+        error.getStyleClass().add("error");
+        error.setText(msg);
+        error.setVisible(true);
+    }
+
+    public void showSuccess(Label label, String msg) {
+        error.getStyleClass().add("success");
+        error.getStyleClass().remove("error");
+        error.setText(msg);
+        error.setVisible(true);
+    }
+
+    public void hideError(Label label) {
+        error.setText("");
+        error.setVisible(false);
     }
 
 }

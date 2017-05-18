@@ -1,5 +1,6 @@
 package com.viremp.employeemanagement;
 
+import com.viremp.employeemanagement.controllers.MainSceneController;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,6 +16,7 @@ import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
@@ -22,6 +24,7 @@ public class MainApp extends Application {
     static Stage mainStage;
     public static boolean englishSelected = true;
     public static Locale locale;
+    
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -78,6 +81,7 @@ public class MainApp extends Application {
 		lang = prop.getProperty("language");
 
 	} catch(FileNotFoundException ex){
+            System.out.println(ex.getMessage());
             changeLangProperty("EN");
             return "EN";
         }
@@ -120,6 +124,29 @@ public class MainApp extends Application {
             }
 
         }
+    }
+    public static void loadScene(String sceneName, Object controller,AnchorPane contentPane,ResourceBundle bundle) throws IOException {
+        resetContentArea(contentPane);
+        FXMLLoader loader = null;
+        if(bundle==null)
+             loader = new FXMLLoader(MainSceneController.mainController.getClass().getResource(sceneName));
+        else 
+            loader = new FXMLLoader(MainSceneController.mainController.getClass().getResource(sceneName),bundle);
+        if (controller != null) {
+            loader.setController(controller);
+        }
+        Parent root = loader.load();
+        fitParentAnchor(root);
+        contentPane.getChildren().add(root);
+    }
+    public static void resetContentArea(AnchorPane contentPane) {
+        contentPane.getChildren().clear();
+    }
+    public static void fitParentAnchor(Parent root) {
+        AnchorPane.setBottomAnchor(root, 0.0);
+        AnchorPane.setLeftAnchor(root, 0.0);
+        AnchorPane.setTopAnchor(root, 0.0);
+        AnchorPane.setRightAnchor(root, 0.0);
     }
 
     /**
