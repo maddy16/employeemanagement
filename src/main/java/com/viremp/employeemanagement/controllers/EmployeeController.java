@@ -6,21 +6,20 @@
 package com.viremp.employeemanagement.controllers;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import com.viremp.employeemanagement.MainApp;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import com.viremp.employeemanagement.db.DatabaseHandler;
+import com.viremp.employeemanagement.forms.models.EmployeeAddForm;
+import com.viremp.employeemanagement.models.Country;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.FileChooser;
-import javax.imageio.ImageIO;
 
 /**
  * FXML Controller class
@@ -29,47 +28,82 @@ import javax.imageio.ImageIO;
  */
 public class EmployeeController implements Initializable {
 
+    private DatabaseHandler db;
     @FXML
     private AnchorPane contentPane;
     @FXML
     private ImageView newEmpImageView;
     @FXML
     private JFXButton newPicImgBtn;
-    ResourceBundle bundle;
+    @FXML
+    private JFXComboBox<String> bloodGpCombo;
+
+    public JFXComboBox<String> getBloodGpCombo() {
+        return bloodGpCombo;
+    }
+    @FXML
+    private JFXComboBox<String> maritalCombo;
+
+    public JFXComboBox<String> getMaritalCombo() {
+        return maritalCombo;
+    }
+    private EmployeeAddForm addForm;
+
+    @FXML
+    private JFXComboBox<String> rankCombo;
+
+    public JFXComboBox<String> getRankCombo() {
+        return rankCombo;
+    }
+    @FXML
+    private JFXComboBox<String> relComboAddForm;
+
+    @FXML
+    private JFXComboBox<String> natComboAddForm;
+    private ResourceBundle bundle;
+
+    public ResourceBundle getBundle() {
+        return bundle;
+    }
+
+    public JFXComboBox<String> getRelComboAddForm() {
+        return relComboAddForm;
+    }
+
+    public JFXComboBox<String> getNatComboAddForm() {
+        return natComboAddForm;
+    }
+
+    public ImageView getNewEmpImageView() {
+        return newEmpImageView;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         bundle = rb;
+        db = DatabaseHandler.getDatabaseHandler();
+
     }
 
     @FXML
     void addNewEmpClicked(ActionEvent event) throws IOException {
         MainApp.loadScene("/fxml/AddEmpForm.fxml", this, contentPane, bundle);
+        initAddForm();
     }
 
     @FXML
     void setPicClicked(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
+        addForm.chooseEmployeePic();
+    }
 
-        //Set extension filter
-        FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
-        FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
-        fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
+    private void initAddForm() {
+        addForm = new EmployeeAddForm(this);
+    }
 
-        //Show open file dialog
-        File file = fileChooser.showOpenDialog(null);
-        if (file != null) {
-            try {
-                BufferedImage bufferedImage = ImageIO.read(file);
-                Image image = SwingFXUtils.toFXImage(bufferedImage, null);
-                newEmpImageView.setImage(image);
-//                newPicImgBtn.setText("Change Photo");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-
+    @FXML
+    void keyTypedOnNationality(KeyEvent event) {
+        addForm.checkEnteredNationality(natComboAddForm.editorProperty().get().getText());
     }
 
 }

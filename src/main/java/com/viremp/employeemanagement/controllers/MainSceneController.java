@@ -26,7 +26,7 @@ import javafx.scene.control.Label;
  */
 public class MainSceneController implements Initializable {
 
-    public static MainSceneController mainController;
+    public static MainSceneController instance;
     @FXML
     private VBox sideBar;
     @FXML
@@ -39,7 +39,7 @@ public class MainSceneController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         bundle = rb;
-        mainController = this;
+        instance = this;
     }
 
     @FXML
@@ -84,14 +84,14 @@ public class MainSceneController implements Initializable {
         error.setVisible(true);
     }
 
-    public void showSuccess(Label label, String msg) {
+    public void showSuccess(String msg) {
         error.getStyleClass().add("success");
         error.getStyleClass().remove("error");
         error.setText(msg);
         error.setVisible(true);
     }
 
-    public void hideError(Label label) {
+    public void hideError() {
         error.setText("");
         error.setVisible(false);
     }
