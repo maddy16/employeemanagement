@@ -8,7 +8,6 @@ package com.viremp.employeemanagement.forms.models;
 import com.jfoenix.controls.JFXComboBox;
 import com.viremp.employeemanagement.controllers.EmployeeController;
 import com.viremp.employeemanagement.db.DatabaseHandler;
-import com.viremp.employeemanagement.db.GenericDB;
 import com.viremp.employeemanagement.models.Country;
 import com.viremp.employeemanagement.models.Rank;
 import java.awt.image.BufferedImage;
