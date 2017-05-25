@@ -1,7 +1,9 @@
 package com.viremp.employeemanagement.db;
 
 
+
 import com.viremp.employeemanagement.models.Country;
+import com.viremp.employeemanagement.models.Fine;
 import com.viremp.employeemanagement.models.Rank;
 import java.sql.*;
 import java.util.List;
@@ -37,6 +39,12 @@ public class DatabaseHandler {
     public boolean deleteRank(int rankId) throws SQLException{
         return Ranks.deleteRank(rankId);
     }
+    public boolean addNewFine(Fine fine) throws SQLException{
+        return Fines.insertNewFine(fine);
+    }
+//    public boolean addNewCertificate(Certificate cert) throws SQLException{
+//        return Certificates.insertNewCertificate(cert);
+//    }
     
 
 }

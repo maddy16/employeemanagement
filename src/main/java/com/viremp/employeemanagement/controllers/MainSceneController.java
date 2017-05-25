@@ -17,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import com.viremp.employeemanagement.MainApp;
+import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 
 /**
@@ -89,8 +90,22 @@ public class MainSceneController implements Initializable {
         error.getStyleClass().remove("error");
         error.setText(msg);
         error.setVisible(true);
+        final Task task = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                Thread.sleep(1000);
+                return null;
+            }
+            
+        };
+        task.setOnSucceeded((event) -> {
+            error.setVisible(false);
+            
+        });
+        new Thread(task).start();
     }
 
+    
     public void hideError() {
         error.setText("");
         error.setVisible(false);

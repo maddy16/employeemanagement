@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXComboBox?>
-<?import com.jfoenix.controls.JFXDatePicker?>
-<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXListView?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -14,198 +16,237 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="911.0" prefWidth="647.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="AnchorPane" prefHeight="938.0" prefWidth="647.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" style="-fx-background-color: #2196F3;" text="%addNewEmpTxt" textFill="WHITE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <JFXButton fx:id="newPicImgBtn" buttonType="RAISED" contentDisplay="TOP" graphicTextGap="0.0" onAction="#setPicClicked" ripplerFill="WHITE" text="%setPhotoBtnTxt" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="105.0">
+         <graphic>
+            <ImageView fx:id="newEmpImageView" fitHeight="150.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../img/emptyProfile.jpg" />
+               </image>
+            </ImageView>
+         </graphic>
+      </JFXButton>
+        <Label alignment="CENTER" prefHeight="104.0" prefWidth="647.0" style="-fx-background-color: #3F729B;" text="%addNewEmpTxt" textFill="WHITE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <font>
-                <Font name="System Bold" size="14.0" />
+                <Font name="System Bold" size="18.0" />
             </font>
             <padding>
                 <Insets bottom="5.0" top="5.0" />
             </padding>
+         <graphic>
+            <ImageView fitHeight="70.0" fitWidth="90.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../img/employee-icon.png" />
+               </image>
+            </ImageView>
+         </graphic>
         </Label>
         <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <children>
-                <JFXButton ripplerFill="RED" style="-fx-background-color: #4CAF50;" text="%addEmpFrmBtnTxt" textFill="WHITE">
+                <JFXButton onAction="#addEmpBtnClicked" ripplerFill="RED" style="-fx-background-color: #4CAF50;" text="%addEmpFrmBtnTxt" textFill="WHITE">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </JFXButton>
             </children>
         </HBox>
-      <VBox layoutX="-32.0" layoutY="16.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
-         <children>
-            <HBox>
+      <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="-16.0" layoutY="93.0" AnchorPane.bottomAnchor="51.0" AnchorPane.leftAnchor="166.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="105.0">
+         <content>
+            <VBox prefHeight="903.0" prefWidth="647.0">
                <children>
-                    <JFXButton fx:id="newPicImgBtn" buttonType="RAISED" contentDisplay="TOP" graphicTextGap="0.0" onAction="#setPicClicked" ripplerFill="WHITE" text="%setPhotoBtnTxt">
-                        <graphic>
-                            <ImageView fx:id="newEmpImageView" fitHeight="150.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
-                                <image>
-                                    <Image url="@../img/emptyProfile.jpg" />
-                                </image>
-                            </ImageView>
-                        </graphic>
-                    </JFXButton>
-                    <FlowPane columnHalignment="CENTER" hgap="15.0" maxHeight="220.0" maxWidth="1.7976931348623157E308" prefHeight="195.0" prefWidth="487.0" prefWrapLength="10.0" rowValignment="TOP" vgap="35.0" HBox.hgrow="ALWAYS">
-                        <children>
-                            <VBox prefHeight="54.0" prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%svcNumTxt" />
-                                    <JFXTextField prefHeight="25.0" prefWidth="68.0" />
-                                </children>
-                            </VBox>
-                            <VBox prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%rankTxt" />
-                                    <JFXComboBox fx:id="rankCombo" prefHeight="25.0" prefWidth="158.0" />
-                                </children>
-                            </VBox>
-                            <VBox prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%nameTxt" />
-                                    <JFXTextField prefHeight="25.0" prefWidth="158.0" />
-                                </children>
-                            </VBox>
-                            <VBox prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%cprNumTxt" />
-                                    <JFXTextField prefHeight="25.0" prefWidth="158.0" />
-                                </children>
-                            </VBox>
-                            <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%addressTxt" />
-                              <JFXTextField />
-                                </children>
-                            </VBox>
-                            <VBox prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%nationalityTxt" />
-                              <JFXComboBox fx:id="natComboAddForm" editable="true" onKeyReleased="#keyTypedOnNationality" prefHeight="25.0" prefWidth="269.0" />
-                                </children>
-                            </VBox>
-                            <VBox prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%mobileNumTxt" />
-                                    <JFXTextField prefHeight="25.0" prefWidth="158.0" />
-                                </children>
-                            </VBox>
-                            <VBox prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%relContactTxt" />
-                                    <JFXTextField prefHeight="25.0" prefWidth="158.0" />
-                                </children>
-                            </VBox>
-                            <VBox prefWidth="155.0" spacing="5.0">
-                                <children>
-                                    <Label text="%relWithRelTxt" />
-                                    <JFXComboBox fx:id="relComboAddForm" prefWidth="158.0" />
-                                </children>
-                            </VBox>
-                        </children>
-                        <padding>
-                            <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
-                        </padding>
-                    </FlowPane>
-               </children>
-            </HBox>
-                    <FlowPane columnHalignment="CENTER" hgap="35.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="75.0" prefWidth="647.0" vgap="35.0">
-                        <children>
-                            <VBox spacing="5.0">
-                                <children>
+                  <HBox>
+                     <children>
+                          <FlowPane columnHalignment="CENTER" hgap="15.0" maxHeight="220.0" maxWidth="1.7976931348623157E308" prefHeight="195.0" prefWidth="487.0" prefWrapLength="10.0" rowValignment="TOP" vgap="35.0" HBox.hgrow="ALWAYS">
+                              <children>
+                                  <VBox prefHeight="54.0" prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%svcNumTxt" />
+                                    <TextField />
+                                      </children>
+                                  </VBox>
+                                  <VBox prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%rankTxt" />
+                                    <ComboBox fx:id="rankCombo" editable="true" prefWidth="150.0" promptText="Enter or Select Rank" />
+                                      </children>
+                                  </VBox>
+                                  <VBox prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%nameTxt" />
+                                    <TextField />
+                                      </children>
+                                  </VBox>
+                                  <VBox prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%cprNumTxt" />
+                                    <TextField />
+                                      </children>
+                                  </VBox>
+                                  <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%addressTxt" />
+                                    <TextField />
+                                      </children>
+                                  </VBox>
+                                  <VBox prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%nationalityTxt" />
+                                    <ComboBox fx:id="natComboAddForm" editable="true" onInputMethodTextChanged="#keyTypedOnNationality" onKeyPressed="#keyTypedOnNationality" onKeyReleased="#keyTypedOnNationality" onKeyTyped="#keyTypedOnNationality" prefWidth="150.0" />
+                                      </children>
+                                  </VBox>
+                                  <VBox prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%mobileNumTxt" />
+                                    <TextField />
+                                      </children>
+                                  </VBox>
+                                  <VBox prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%relContactTxt" />
+                                    <TextField />
+                                      </children>
+                                  </VBox>
+                                  <VBox prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%relWithRelTxt" />
+                                    <ComboBox fx:id="relComboAddForm" prefWidth="150.0" />
+                                      </children>
+                                  </VBox>
+                              <VBox prefWidth="155.0" spacing="5.0">
+                                 <children>
                                     <Label text="%bldGrpTxt" />
-                                    <JFXComboBox fx:id="bloodGpCombo" prefHeight="25.0" prefWidth="158.0" />
-                                </children>
-                            </VBox>
-                            <VBox prefHeight="50.0" prefWidth="158.0" spacing="5.0">
-                                <children>
-                                    <Label text="%dojTxt" />
-                                    <JFXDatePicker defaultColor="#2196f3" />
-                                </children>
-                            </VBox>
-                  <VBox prefHeight="50.0" prefWidth="158.0" spacing="5.0">
-                     <children>
-                        <Label text="%lastRankDateTxt" />
-                        <JFXDatePicker defaultColor="#2196f3" />
+                                    <ComboBox fx:id="bloodGpCombo" prefHeight="25.0" prefWidth="180.0" />
+                                 </children>
+                              </VBox>
+                              </children>
+                              <padding>
+                                  <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
+                              </padding>
+                          </FlowPane>
                      </children>
-                  </VBox>
-                  <VBox spacing="5.0">
-                     <children>
-                        <Label text="%dutyTxt" />
-                        <JFXTextField prefHeight="25.0" prefWidth="158.0" />
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="50.0" prefWidth="158.0" spacing="5.0">
-                     <children>
-                        <Label text="%leavesTxt" />
-                        <HBox spacing="5.0">
+                  </HBox>
+                          <FlowPane columnHalignment="CENTER" hgap="15.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="75.0" prefWidth="647.0" vgap="35.0">
+                              <children>
+                                  <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
+                                      <children>
+                                          <Label text="%dojTxt" />
+                              <DatePicker />
+                                      </children>
+                                  </VBox>
+                        <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
                            <children>
-                              <JFXTextField prefHeight="25.0" prefWidth="99.0" />
-                              <JFXComboBox prefHeight="25.0" prefWidth="88.0" HBox.hgrow="ALWAYS" />
+                              <Label text="%lastRankDateTxt" />
+                              <DatePicker />
                            </children>
-                        </HBox>
-                     </children>
-                  </VBox>
-                            
-                                                    <VBox prefWidth="158.0" spacing="5.0">
-                                <children>
-                                    <Label text="%finesTxt" />
-                        <HBox spacing="5.0">
+                        </VBox>
+                        <VBox prefWidth="155.0" spacing="5.0">
                            <children>
-                                          <JFXTextField prefHeight="25.0" prefWidth="83.0" HBox.hgrow="ALWAYS" />
-                              <JFXButton buttonType="RAISED" style="-fx-background-color: #64B5F6;" text="Upload" />
+                              <Label text="%dutyTxt" />
+                              <TextField />
                            </children>
-                        </HBox>
-                                </children>
-                            </VBox>
-                  <VBox prefWidth="158.0" spacing="5.0">
-                     <children>
-                        <Label text="%certiTxt" />
-                        <HBox spacing="5.0">
+                        </VBox>
+                        <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
                            <children>
-                              <JFXTextField prefHeight="25.0" prefWidth="83.0" HBox.hgrow="ALWAYS" />
-                              <JFXButton buttonType="RAISED" style="-fx-background-color: #64B5F6;" text="Upload" />
+                              <Label text="%leavesTxt" />
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <TextField prefHeight="25.0" prefWidth="136.0" />
+                                    <ComboBox fx:id="leavesCombo" prefWidth="150.0" />
+                                 </children>
+                              </HBox>
                            </children>
-                        </HBox>
-                     </children>
-                  </VBox>
-                        </children>
-                        <padding>
-                            <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
-                        </padding>
-                    </FlowPane>
-                    <FlowPane columnHalignment="CENTER" hgap="35.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="820.0" prefWidth="658.0" vgap="35.0">
-                        <children>
-                  <VBox spacing="5.0">
+                        </VBox>
+                        <VBox prefWidth="155.0" spacing="5.0">
+                           <children>
+                              <Label text="%maritalTxt" />
+                              <ComboBox fx:id="maritalCombo" prefHeight="25.0" prefWidth="185.0" />
+                           </children>
+                        </VBox>
+                              </children>
+                              <padding>
+                                  <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
+                              </padding>
+                          </FlowPane>
+                  <FlowPane columnHalignment="CENTER" hgap="35.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="38.0" prefWidth="647.0" vgap="35.0">
                      <children>
-                        <Label text="%eduTxt" />
-                        <JFXComboBox prefWidth="158.0" />
+                        <VBox prefHeight="281.0" prefWidth="242.0" spacing="5.0">
+                           <children>
+                              <Label text="%finesTxt" />
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <TextField fx:id="fineNameField" prefHeight="25.0" prefWidth="136.0" promptText="Enter Fine Name" />
+                                    <JFXButton buttonType="RAISED" onAction="#setFineImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
+                                    <JFXButton buttonType="RAISED" onAction="#addNewFineClicked" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
+                                 </children>
+                              </HBox>
+                              <Label text="Added Fines" />
+                              <HBox prefHeight="253.0" prefWidth="242.0" spacing="5.0">
+                                 <children>
+                                    <JFXListView fx:id="finesList" prefHeight="247.0" prefWidth="136.0" />
+                                    <VBox alignment="BOTTOM_LEFT" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <JFXButton fx:id="deleteFineBtn" disable="true" onAction="#deleteFineClicked" prefHeight="25.0" prefWidth="92.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="Remove" textFill="WHITE" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="281.0" prefWidth="242.0" spacing="5.0">
+                           <children>
+                              <Label text="%intCoursesTxt" />
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <TextField fx:id="intCourseField" prefHeight="25.0" prefWidth="136.0" promptText="Enter Course Name" />
+                                    <JFXButton buttonType="RAISED" onAction="#setIntCImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
+                                    <JFXButton buttonType="RAISED" onAction="#addIntCourse" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
+                                 </children>
+                              </HBox>
+                              <Label text="Added Interior Courses" />
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <JFXListView fx:id="intCourseList" prefHeight="247.0" prefWidth="136.0" />
+                                    <VBox alignment="BOTTOM_LEFT" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <JFXButton fx:id="deleteIntCourseBtn" disable="true" onAction="#deleteIntCourse" prefHeight="25.0" prefWidth="91.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="Remove" textFill="WHITE" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="281.0" prefWidth="242.0" spacing="5.0">
+                           <children>
+                              <Label text="%extCoursesTxt" />
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <TextField fx:id="extCourseField" prefHeight="25.0" prefWidth="136.0" promptText="Enter Course Name" />
+                                    <JFXButton buttonType="RAISED" onAction="#setExtCImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
+                                    <JFXButton buttonType="RAISED" onAction="#addExtCourse" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
+                                 </children>
+                              </HBox>
+                              <Label text="Added Exterior Courses" />
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <JFXListView fx:id="extCoursesList" prefHeight="247.0" prefWidth="136.0" />
+                                    <VBox alignment="BOTTOM_LEFT" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <JFXButton fx:id="deleteExtCourseBtn" disable="true" onAction="#deleteExtCourse" prefHeight="25.0" prefWidth="91.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="Remove" textFill="WHITE" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
                      </children>
-                  </VBox>
-                  <VBox spacing="5.0">
-                     <children>
-                        <Label text="%intCoursesTxt" />
-                        <JFXComboBox prefWidth="158.0" />
-                     </children>
-                  </VBox>
-                  <VBox spacing="5.0">
-                     <children>
-                        <Label text="%extCoursesTxt" />
-                        <JFXComboBox prefWidth="158.0" />
-                     </children>
-                  </VBox>
-                  <VBox spacing="5.0">
-                     <children>
-                        <Label text="%maritalTxt" />
-                        <JFXComboBox fx:id="maritalCombo" prefWidth="158.0" />
-                     </children>
-                  </VBox>
-                        </children>
-                        <padding>
-                            <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
-                        </padding>
-                    </FlowPane>
-         </children>
-      </VBox>
+                     <padding>
+                        <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
+                     </padding>
+                  </FlowPane>
+               </children>
+            </VBox>
+         </content>
+      </ScrollPane>
     </children>
 </AnchorPane>
