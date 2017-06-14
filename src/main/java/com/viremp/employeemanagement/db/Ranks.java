@@ -34,11 +34,23 @@ public class Ranks {
         }
         return ranks;
     }
-    public static boolean addRank(Rank rank) throws SQLException{
-        return GenericDB.insert(TABLE, getValuesMap(rank));
+    public static int  addRank(Rank rank) throws SQLException{
+        return GenericDB.insertReturningId(TABLE, getValuesMap(rank));
     }
     public static boolean deleteRank(int rankId) throws SQLException{
         return GenericDB.delete(TABLE, COL_RANK_ID, rankId);
+    }
+    public static Rank getRankByName(String name) throws SQLException{
+        
+        ResultSet rs = GenericDB.query(TABLE, null, COL_RANK_NAME+" = ?", new Object[]{name}, null);
+        Rank rank = null;
+        if(rs.next()){
+           rank = new Rank();
+           rank.setRankId(rs.getInt(COL_RANK_ID));
+           rank.setRankName(name);
+        }
+        return rank;
+        
     }
     private static Map<String,Object> getValuesMap(Rank rank){
         Map<String,Object> values = new HashMap<>();

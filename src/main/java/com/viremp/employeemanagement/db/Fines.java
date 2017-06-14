@@ -6,8 +6,11 @@
 package com.viremp.employeemanagement.db;
 
 import com.viremp.employeemanagement.models.Fine;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +26,23 @@ public class Fines {
     
     public static boolean insertNewFine(Fine fine) throws SQLException{
         return GenericDB.insert(TABLE, getValuesMap(fine));
+    }
+    public static List<Fine> getAllFines(int employeeId) throws SQLException{
+        ResultSet rs = GenericDB.query(TABLE, null, COL_EMPLOYEE_ID+" = ?", new Object[]{employeeId}, null);
+        List<Fine> list = new ArrayList<>();
+        while(rs.next()){
+            Fine fine = new Fine();
+            fine.setEmployeeId(employeeId);
+            fine.setFineId(rs.getInt(COL_FINE_ID));
+            fine.setFineName(rs.getString(COL_FINE_NAME));
+            fine.setFineImage(rs.getString(COL_FINE_IMAGE));
+            list.add(fine);
+        }
+        return list;
+    }
+    public static boolean deleteAllFines(int employeeId) throws SQLException{
+        String sql = "DELETE FROM "+TABLE+" where "+COL_EMPLOYEE_ID+" = " + employeeId;
+        return GenericDB.executeUpdate(sql);
     }
     private static Map<String,Object> getValuesMap(Fine fine){
         Map<String,Object> values = new HashMap<>();

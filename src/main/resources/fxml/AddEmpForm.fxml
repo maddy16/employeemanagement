@@ -27,7 +27,7 @@
             </ImageView>
          </graphic>
       </JFXButton>
-        <Label alignment="CENTER" prefHeight="104.0" prefWidth="647.0" style="-fx-background-color: #3F729B;" text="%addNewEmpTxt" textFill="WHITE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <Label fx:id="addNewEmployeeLabel" alignment="CENTER" prefHeight="104.0" prefWidth="647.0" style="-fx-background-color: #3F729B;" text="%addNewEmpTxt" textFill="WHITE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <font>
                 <Font name="System Bold" size="18.0" />
             </font>
@@ -42,13 +42,23 @@
             </ImageView>
          </graphic>
         </Label>
-        <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <children>
-                <JFXButton onAction="#addEmpBtnClicked" ripplerFill="RED" style="-fx-background-color: #4CAF50;" text="%addEmpFrmBtnTxt" textFill="WHITE">
+                <JFXButton fx:id="addEmpBtn" onAction="#addEmpBtnClicked" ripplerFill="RED" style="-fx-background-color: #4CAF50;" text="%addEmpFrmBtnTxt" textFill="WHITE">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </JFXButton>
+            <JFXButton fx:id="editEmpBtn" onAction="#editEmpBtnClicked" ripplerFill="RED" style="-fx-background-color: #4CAF50;" text="Edit Record" textFill="WHITE" visible="false">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </JFXButton>
+            <JFXButton fx:id="delEmpBtn" onAction="#delEmpBtnClicked" ripplerFill="#f6ff00" style="-fx-background-color: #D50000;" text="Delete Record" textFill="WHITE" visible="false">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </JFXButton>
             </children>
         </HBox>
       <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="-16.0" layoutY="93.0" AnchorPane.bottomAnchor="51.0" AnchorPane.leftAnchor="166.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="105.0">
@@ -62,7 +72,7 @@
                                   <VBox prefHeight="54.0" prefWidth="155.0" spacing="5.0">
                                       <children>
                                           <Label text="%svcNumTxt" />
-                                    <TextField />
+                                    <TextField fx:id="svcNumField" />
                                       </children>
                                   </VBox>
                                   <VBox prefWidth="155.0" spacing="5.0">
@@ -74,19 +84,19 @@
                                   <VBox prefWidth="155.0" spacing="5.0">
                                       <children>
                                           <Label text="%nameTxt" />
-                                    <TextField />
+                                    <TextField fx:id="nameField" />
                                       </children>
                                   </VBox>
                                   <VBox prefWidth="155.0" spacing="5.0">
                                       <children>
                                           <Label text="%cprNumTxt" />
-                                    <TextField />
+                                    <TextField fx:id="cprField" />
                                       </children>
                                   </VBox>
                                   <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
                                       <children>
                                           <Label text="%addressTxt" />
-                                    <TextField />
+                                    <TextField fx:id="addressField" />
                                       </children>
                                   </VBox>
                                   <VBox prefWidth="155.0" spacing="5.0">
@@ -98,13 +108,13 @@
                                   <VBox prefWidth="155.0" spacing="5.0">
                                       <children>
                                           <Label text="%mobileNumTxt" />
-                                    <TextField />
+                                    <TextField fx:id="mobileField" />
                                       </children>
                                   </VBox>
                                   <VBox prefWidth="155.0" spacing="5.0">
                                       <children>
                                           <Label text="%relContactTxt" />
-                                    <TextField />
+                                    <TextField fx:id="relContactField" />
                                       </children>
                                   </VBox>
                                   <VBox prefWidth="155.0" spacing="5.0">
@@ -131,19 +141,19 @@
                                   <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
                                       <children>
                                           <Label text="%dojTxt" />
-                              <DatePicker />
+                              <DatePicker fx:id="dojField" />
                                       </children>
                                   </VBox>
                         <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
                            <children>
                               <Label text="%lastRankDateTxt" />
-                              <DatePicker />
+                              <DatePicker fx:id="lastRankField" />
                            </children>
                         </VBox>
                         <VBox prefWidth="155.0" spacing="5.0">
                            <children>
                               <Label text="%dutyTxt" />
-                              <TextField />
+                              <TextField fx:id="dutyField" />
                            </children>
                         </VBox>
                         <VBox prefHeight="50.0" prefWidth="155.0" spacing="5.0">
@@ -151,7 +161,7 @@
                               <Label text="%leavesTxt" />
                               <HBox spacing="5.0">
                                  <children>
-                                    <TextField prefHeight="25.0" prefWidth="136.0" />
+                                    <TextField fx:id="leaveDaysField" prefHeight="25.0" prefWidth="136.0" />
                                     <ComboBox fx:id="leavesCombo" prefWidth="150.0" />
                                  </children>
                               </HBox>
@@ -176,16 +186,17 @@
                               <HBox spacing="5.0">
                                  <children>
                                     <TextField fx:id="fineNameField" prefHeight="25.0" prefWidth="136.0" promptText="Enter Fine Name" />
-                                    <JFXButton buttonType="RAISED" onAction="#setFineImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
-                                    <JFXButton buttonType="RAISED" onAction="#addNewFineClicked" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
+                                    <JFXButton fx:id="setFineImgBtn" buttonType="RAISED" onAction="#setFineImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
+                                    <JFXButton fx:id="addFineBtn" buttonType="RAISED" onAction="#addNewFineClicked" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
                                  </children>
                               </HBox>
                               <Label text="Added Fines" />
                               <HBox prefHeight="253.0" prefWidth="242.0" spacing="5.0">
                                  <children>
                                     <JFXListView fx:id="finesList" prefHeight="247.0" prefWidth="136.0" />
-                                    <VBox alignment="BOTTOM_LEFT" HBox.hgrow="ALWAYS">
+                                    <VBox alignment="BOTTOM_LEFT" spacing="5.0" HBox.hgrow="ALWAYS">
                                        <children>
+                                          <JFXButton fx:id="viewFineImagesBtn" disable="true" onAction="#viewFineImageClicked" prefHeight="25.0" prefWidth="92.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="View Image" textFill="WHITE" visible="false" />
                                           <JFXButton fx:id="deleteFineBtn" disable="true" onAction="#deleteFineClicked" prefHeight="25.0" prefWidth="92.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="Remove" textFill="WHITE" />
                                        </children>
                                     </VBox>
@@ -199,16 +210,17 @@
                               <HBox spacing="5.0">
                                  <children>
                                     <TextField fx:id="intCourseField" prefHeight="25.0" prefWidth="136.0" promptText="Enter Course Name" />
-                                    <JFXButton buttonType="RAISED" onAction="#setIntCImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
-                                    <JFXButton buttonType="RAISED" onAction="#addIntCourse" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
+                                    <JFXButton fx:id="setIntCourseImageBtn" buttonType="RAISED" onAction="#setIntCImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
+                                    <JFXButton fx:id="addIntCourseBtn" buttonType="RAISED" onAction="#addIntCourse" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
                                  </children>
                               </HBox>
                               <Label text="Added Interior Courses" />
                               <HBox spacing="5.0">
                                  <children>
                                     <JFXListView fx:id="intCourseList" prefHeight="247.0" prefWidth="136.0" />
-                                    <VBox alignment="BOTTOM_LEFT" HBox.hgrow="ALWAYS">
+                                    <VBox alignment="BOTTOM_LEFT" spacing="5.0" HBox.hgrow="ALWAYS">
                                        <children>
+                                          <JFXButton fx:id="viewIntImagesBtn" disable="true" onAction="#viewIntCourseImage" prefHeight="25.0" prefWidth="91.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="View Image" textFill="WHITE" visible="false" />
                                           <JFXButton fx:id="deleteIntCourseBtn" disable="true" onAction="#deleteIntCourse" prefHeight="25.0" prefWidth="91.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="Remove" textFill="WHITE" />
                                        </children>
                                     </VBox>
@@ -222,16 +234,17 @@
                               <HBox spacing="5.0">
                                  <children>
                                     <TextField fx:id="extCourseField" prefHeight="25.0" prefWidth="136.0" promptText="Enter Course Name" />
-                                    <JFXButton buttonType="RAISED" onAction="#setExtCImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
-                                    <JFXButton buttonType="RAISED" onAction="#addExtCourse" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
+                                    <JFXButton fx:id="setExtCourseImageBtn" buttonType="RAISED" onAction="#setExtCImageClicked" style="-fx-background-color: #1C2331;" text="Image" textFill="WHITE" />
+                                    <JFXButton fx:id="addExtCourseBtn" buttonType="RAISED" onAction="#addExtCourse" style="-fx-background-color: #1C2331;" text="Add" textFill="WHITE" />
                                  </children>
                               </HBox>
                               <Label text="Added Exterior Courses" />
                               <HBox spacing="5.0">
                                  <children>
                                     <JFXListView fx:id="extCoursesList" prefHeight="247.0" prefWidth="136.0" />
-                                    <VBox alignment="BOTTOM_LEFT" HBox.hgrow="ALWAYS">
+                                    <VBox alignment="BOTTOM_LEFT" spacing="5.0" HBox.hgrow="ALWAYS">
                                        <children>
+                                          <JFXButton fx:id="viewExtImagesBtn" disable="true" onAction="#viewExtCourseImage" prefHeight="25.0" prefWidth="91.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="View Image" textFill="WHITE" visible="false" />
                                           <JFXButton fx:id="deleteExtCourseBtn" disable="true" onAction="#deleteExtCourse" prefHeight="25.0" prefWidth="91.0" ripplerFill="RED" style="-fx-background-color: #1C2331;" text="Remove" textFill="WHITE" />
                                        </children>
                                     </VBox>

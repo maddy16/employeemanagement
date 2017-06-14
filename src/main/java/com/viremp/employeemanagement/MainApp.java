@@ -54,6 +54,9 @@ public class MainApp extends Application {
         
     }
 
+    public static Stage getMainStage(){
+        return mainStage;
+    }
     static void switchLocale(String lang) throws Exception {
         locale = new Locale(lang);
         MainApp.setStageInLocale(locale);

@@ -5,14 +5,17 @@
  */
 package com.viremp.employeemanagement.forms.models;
 
+import com.jfoenix.controls.JFXListView;
 import com.viremp.employeemanagement.controllers.EmployeeController;
 import com.viremp.employeemanagement.controllers.MainSceneController;
 import com.viremp.employeemanagement.db.DatabaseHandler;
 //import com.viremp.employeemanagement.models.Certificate;
 import com.viremp.employeemanagement.models.Country;
 import com.viremp.employeemanagement.models.Course;
+import com.viremp.employeemanagement.models.Employee;
 import com.viremp.employeemanagement.models.Fine;
 import com.viremp.employeemanagement.models.Rank;
+import java.awt.Desktop;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -23,11 +26,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import static java.nio.file.StandardCopyOption.*;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.Event;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
@@ -43,15 +50,25 @@ public class EmployeeAddForm {
     private final DatabaseHandler db;
     private final ResourceBundle bundle;
     private final EmployeeController controller;
+    private int rankIdSelected;
+    private int countryIdSelected;
+    private int employeeId;
     private File fineImage;
     private File intCourseImage;
     private File extCourseImage;
+    private File profilePicImage;
     private List<Fine> fines;
-//    private List<Certificate> certificates;
     private List<Course> intCourses;
     private List<Course> extCourses;
+    private List<Rank> allRanks;
+    private Employee employeeToProcess;
+    public static final String PROFILE_IMAGE_PATH = ".userfiles/.pics/";
     public static final String FINES_IMAGE_PATH = ".userfiles/.fines/";
-    public static final String CERTS_IMAGE_PATH = ".userfiles/.fines/";
+    public static final String INT_IMAGE_PATH = ".userfiles/.int/";
+    public static final String EXT_IMAGE_PATH = ".userfiles/.ext/";
+
+    boolean editMode = false;
+    boolean readOnly = true;
 
     public EmployeeAddForm(EmployeeController controller) {
         db = DatabaseHandler.getDatabaseHandler();
@@ -60,28 +77,270 @@ public class EmployeeAddForm {
         initForm();
     }
 
-    private void initForm() {
+    public void editForm() {
+        if (readOnly) {
+            gotoEditMode();
+        } else {
+            processUpdateForm();
+        }
+
+    }
+
+    void gotoEditMode() {
+        toggleReadOnly(false);
+        controller.getEditEmpBtn().setText("Save");
+        controller.getDelEmpBtn().setText("Cancel");
+    }
+
+    void gotoViewMode() {
+        toggleReadOnly(true);
+        controller.getEditEmpBtn().setText("Edit Record");
+        controller.getDelEmpBtn().setText("Delete Record");
+    }
+
+    public void deleteEmp() {
+        if (readOnly) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Sure want to delete Employee Record?", ButtonType.YES, ButtonType.NO);
+            alert.showAndWait();
+            if (alert.getResult() == ButtonType.YES) {
+                try {
+                    db.deleteAllFines(employeeId);
+                    db.deleteAllIntCourses(employeeId);
+                    db.deleteAllExtCourses(employeeId);
+                    db.deleteEmployee(employeeId);
+                    alert = new Alert(Alert.AlertType.INFORMATION, "Employee Record Deleted.", ButtonType.OK);
+                    alert.showAndWait();
+                    MainSceneController.instance.loadEmployeesView();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } else {
+            setDataModel(employeeToProcess);
+            gotoViewMode();
+        }
+    }
+
+    void populateComboBoxes() {
         fillNatCombo(controller.getNatComboAddForm());
         fillRelationCombo(controller.getRelComboAddForm());
         fillRanksList();
         fillMaritalCombo();
         fillLeavesCombo();
         fillBloodGroupCombo();
+    }
+
+    void toggleReadOnly(boolean toggle) {
+        readOnly = toggle;
+        controller.getSvcNumField().setEditable(!toggle);
+        controller.getRankCombo().setDisable(toggle);
+        controller.getNameField().setEditable(!toggle);
+        controller.getCprField().setEditable(!toggle);
+        controller.getAddressField().setEditable(!toggle);
+        controller.getNatComboAddForm().setDisable(toggle);
+        controller.getMobileField().setEditable(!toggle);
+        controller.getRelContactField().setEditable(!toggle);
+        controller.getRelComboAddForm().setDisable(toggle);
+        controller.getBloodGpCombo().setDisable(toggle);
+        controller.getDojField().setDisable(toggle);
+        controller.getLastRankField().setDisable(toggle);
+        controller.getDutyField().setEditable(!toggle);
+        controller.getLeaveDaysField().setEditable(!toggle);
+        controller.getLeavesCombo().setDisable(toggle);
+        controller.getMaritalCombo().setDisable(toggle);
+        controller.getNewPicImgBtn().setDisable(toggle);
+        controller.getAddFineBtn().setDisable(toggle);
+        controller.getAddIntCourseBtn().setDisable(toggle);
+        controller.getAddExtCourseBtn().setDisable(toggle);
+        controller.getSetExtCourseImageBtn().setDisable(toggle);
+        controller.getSetFineImgBtn().setDisable(toggle);
+        controller.getSetIntCourseImageBtn().setDisable(toggle);
+        controller.getFineNameField().setEditable(!toggle);
+        controller.getIntCourseField().setEditable(!toggle);
+        controller.getExtCourseField().setEditable(!toggle);
+        if(controller.getFinesList().getItems().size()>0)
+            controller.getDeleteFineBtn().setDisable(toggle);
+        if(controller.getIntCourseList().getItems().size()>0)
+            controller.getDeleteIntCourseBtn().setDisable(toggle);
+        if(controller.getExtCoursesList().getItems().size()>0)
+            controller.getDeleteExtCourseBtn().setDisable(toggle);
+
+    }
+
+    public void setDataModel(Employee employee) {
+        employeeToProcess = employee;
+        editMode = true;
+        
+        controller.getAddEmpBtn().setVisible(false);
+        controller.getEditEmpBtn().setVisible(true);
+        controller.getDelEmpBtn().setVisible(true);
+        controller.getAddNewEmployeeLabel().setText(bundle.getString("employeeDetailsLabel"));
+        controller.getSvcNumField().setText(employee.getSvcNum());
+        employeeId = employee.getEmployeeId();
+        for (int i = 0; i < allRanks.size(); i++) {
+            if (allRanks.get(i).getRankId() == employee.getRankId()) {
+                controller.getRankCombo().getSelectionModel().select(i);
+                break;
+            }
+        }
+        controller.getNameField().setText(employee.getEmpName());
+        controller.getCprField().setText(employee.getCprNum());
+        controller.getAddressField().setText(employee.getAddress());
+        for (int i = 0; i < allCountries.size(); i++) {
+            if (allCountries.get(i).getCountryId() == employee.getCountryId()) {
+                controller.getNatComboAddForm().getSelectionModel().select(i);
+                break;
+            }
+        }
+        controller.getMobileField().setText(employee.getMobile());
+        controller.getRelContactField().setText(employee.getRelContact());
+        controller.getRelComboAddForm().getSelectionModel().select(employee.getRelRelation());
+        controller.getBloodGpCombo().getSelectionModel().select(employee.getBloodGroup());
+        controller.getDojField().setValue(LocalDate.parse(employee.getDoj()));
+        controller.getLastRankField().setValue(LocalDate.parse(employee.getLastRankDate()));
+        controller.getDutyField().setText(employee.getDuty());
+        controller.getLeaveDaysField().setText(employee.getLeaveDays());
+        controller.getLeavesCombo().getSelectionModel().select(employee.getLeaveType());
+        controller.getMaritalCombo().getSelectionModel().select(employee.getMaritalStatus());
+        File file = new File(employee.getEmpPic());
+        profilePicImage = file;
+        BufferedImage bufferedImage;
+        try {
+            bufferedImage = ImageIO.read(file);
+            Image image = SwingFXUtils.toFXImage(bufferedImage, null);
+            controller.getNewEmpImageView().setImage(image);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        controller.getViewExtImagesBtn().setVisible(true);
+        controller.getViewIntImagesBtn().setVisible(true);
+        controller.getViewFineImagesBtn().setVisible(true);
+        try {
+            List<Fine> allFines = db.getAllFines(employee.getEmployeeId());
+
+            if (allFines != null && allFines.size() > 0) {
+                fines = allFines;
+                controller.getViewFineImagesBtn().setDisable(false);
+                controller.getFinesList().getItems().clear();
+                controller.getDeleteFineBtn().setDisable(false);
+                for (Fine fine : allFines) {
+                    controller.getFinesList().getItems().add(fine.getFineName());
+                    fine.setImageFile(new File(fine.getFineImage()));
+                }
+            }
+            List<Course> allIntCourses = db.getAllInteriorCourses(employee.getEmployeeId());
+
+            if (allIntCourses != null && allIntCourses.size() > 0) {
+                intCourses = allIntCourses;
+                
+                controller.getViewIntImagesBtn().setDisable(false);
+                controller.getIntCourseList().getItems().clear();
+                controller.getDeleteIntCourseBtn().setDisable(false);
+                for (Course course : allIntCourses) {
+                    controller.getIntCourseList().getItems().add(course.getCourseName());
+                    course.setImageFile(new File(course.getCourseImage()));
+                }
+            }
+            List<Course> allExtCourses = db.getAllExteriorCourses(employee.getEmployeeId());
+
+            if (allExtCourses != null && allExtCourses.size() > 0) {
+                extCourses = allExtCourses;
+                controller.getViewExtImagesBtn().setDisable(false);
+                controller.getExtCoursesList().getItems().clear();
+                controller.getDeleteExtCourseBtn().setDisable(false);
+                for (Course course : allExtCourses) {
+                    controller.getExtCoursesList().getItems().add(course.getCourseName());
+                    course.setImageFile(new File(course.getCourseImage()));
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        toggleReadOnly(true);
+
+    }
+
+    public void viewIntCourseImage() {
+        viewImage(controller.getIntCourseList(), 1);
+    }
+
+    public void viewExtCourseImage() {
+        viewImage(controller.getExtCoursesList(), 2);
+    }
+
+    public void viewFineImage() {
+        viewImage(controller.getFinesList(), 0);
+    }
+
+    private void viewImage(JFXListView<String> listView, int cat) {
+        try {
+
+            int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+            if (selectedIndex == -1) {
+                return;
+            }
+            Object ob = null;
+            switch (cat) {
+                case 0:
+                    ob = fines.get(selectedIndex);
+                    break;
+                case 1:
+                    ob = intCourses.get(selectedIndex);
+                    break;
+                case 2:
+                    ob = extCourses.get(selectedIndex);
+            }
+            File file = null;
+            if (ob instanceof Fine) {
+                file = new File(((Fine) ob).getFineImage());
+            } else if (ob instanceof Course) {
+                file = new File(((Course) ob).getCourseImage());
+            }
+            Desktop.getDesktop().open(file);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    void initObjects() {
         fineImage = null;
+        intCourseImage = null;
+        extCourseImage = null;
+        profilePicImage = null;
         fines = new ArrayList<>();
-//        certificates = new ArrayList<>();
         intCourses = new ArrayList<>();
         extCourses = new ArrayList<>();
-        for(int i=1;i<=6;i++){
-            controller.getFinesList().getItems().add("Fine "+i);
-        }
-        for(int i=1;i<=6;i++){
-            controller.getIntCourseList().getItems().add("Course "+i);
-        }
-        for(int i=1;i<=6;i++){
-            controller.getExtCoursesList().getItems().add("Course "+i);
-        }
+        allRanks = new ArrayList<>();
+    }
 
+    private void initForm() {
+        initObjects();
+        populateComboBoxes();
+
+        createDirectories();
+//        for (int i = 1; i <= 6; i++) {
+//            controller.getFinesList().getItems().add("Fine " + i);
+//        }
+//        for (int i = 1; i <= 6; i++) {
+//            controller.getIntCourseList().getItems().add("Course " + i);
+//        }
+//        for (int i = 1; i <= 6; i++) {
+//            controller.getExtCoursesList().getItems().add("Course " + i);
+//        }
+
+    }
+
+    void createDirectories() {
+        File file = new File(INT_IMAGE_PATH);
+        file.mkdirs();
+        file = new File(EXT_IMAGE_PATH);
+        file.mkdirs();
+        file = new File(FINES_IMAGE_PATH);
+        file.mkdirs();
+        file = new File(PROFILE_IMAGE_PATH);
+        file.mkdirs();
     }
 
     private void fillRelationCombo(ComboBox<String> relComboAddForm) {
@@ -130,20 +389,8 @@ public class EmployeeAddForm {
     }
 
     private void fillNatCombo(ComboBox<String> natComboAddForm) {
-        final Task task = new Task() {
-            @Override
-            protected Object call() {
-                Object o = null;
-                try {
-                    o = db.getAllCountries();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                return o;
-            }
-        };
-        task.setOnSucceeded((Event event1) -> {
-            List<Country> countries = (List<Country>) task.getValue();
+        try {
+            List<Country> countries = db.getAllCountries();
             if (countries != null) {
                 allCountries = countries;
                 ObservableList<String> items = natComboAddForm.getItems();
@@ -158,9 +405,9 @@ public class EmployeeAddForm {
             } else {
                 System.out.println("Countries List is Null");
             }
-//                    MainScreenController.getController().setLoading(false);
-        });
-        new Thread(task).start();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
 
     }
 
@@ -168,6 +415,7 @@ public class EmployeeAddForm {
         File file = getImageSelection();
         if (file != null) {
             try {
+                profilePicImage = file;
                 BufferedImage bufferedImage = ImageIO.read(file);
                 Image image = SwingFXUtils.toFXImage(bufferedImage, null);
                 controller.getNewEmpImageView().setImage(image);
@@ -179,25 +427,13 @@ public class EmployeeAddForm {
     }
 
     void fillRanksList() {
-        final Task task = new Task() {
-            @Override
-            protected Object call() {
-                Object o = null;
-                try {
-                    o = db.getAllRanks();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                return o;
-            }
-        };
-        task.setOnSucceeded((Event event1) -> {
-            List<Rank> ranks = (List<Rank>) task.getValue();
+        try {
+            List<Rank> ranks = db.getAllRanks();
             if (ranks != null) {
 //                allCountries = countries;
                 ObservableList<String> items = controller.getRankCombo().getItems();
                 items.clear();
-
+                allRanks = ranks;
                 ranks.forEach((rank) -> {
                     items.add(rank.getRankName());
 
@@ -207,9 +443,10 @@ public class EmployeeAddForm {
             } else {
                 System.out.println("Ranks List is Null");
             }
-//                    MainScreenController.getController().setLoading(false);
-        });
-        new Thread(task).start();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
     }
 
     public void checkEnteredNationality(String txt) {
@@ -384,7 +621,49 @@ public class EmployeeAddForm {
 
     }
 
-    public void processFines() {
+    void processExtCourses() {
+        int courseId = 1;
+        for (Course course : extCourses) {
+            course.setCourseId(courseId);
+            String copiedPath = copyExtCourseFile(course);
+            if (copiedPath == null) {
+                System.out.println("Cannot Copy File for Exterior Course: " + courseId);
+            } else {
+                try {
+                    course.setCourseImage(copiedPath);
+                    course.setEmployeeId(employeeId);
+                    insertExtCourseToDb(course);
+                } catch (SQLException ex) {
+                    System.out.println(ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+            courseId++;
+        }
+    }
+
+    void processIntCourses() {
+        int courseId = 1;
+        for (Course course : intCourses) {
+            course.setCourseId(courseId);
+            String copiedPath = copyIntCourseFile(course);
+            if (copiedPath == null) {
+                System.out.println("Cannot Copy File for Interior Course: " + courseId);
+            } else {
+                try {
+                    course.setCourseImage(copiedPath);
+                    course.setEmployeeId(employeeId);
+                    insertIntCourseToDb(course);
+                } catch (SQLException ex) {
+                    System.out.println(ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+            courseId++;
+        }
+    }
+
+    void processFines() {
         int fineId = 1;
         for (Fine fine : fines) {
             fine.setFineId(fineId);
@@ -392,92 +671,44 @@ public class EmployeeAddForm {
             if (copiedPath == null) {
                 System.out.println("Cannot Copy File for fine " + fineId);
             } else {
-                fine.setFineImage(copiedPath);
-                fine.setEmployeeId(1);
-                insertFineToDb(fine);
+                try {
+                    fine.setFineImage(copiedPath);
+                    fine.setEmployeeId(employeeId);
+                    insertFineToDb(fine);
+                } catch (SQLException ex) {
+                    System.out.println(ex.getMessage());
+                    ex.printStackTrace();
+                }
             }
             fineId++;
         }
     }
 
-    public void processCertificates() {
-//        int certId = 1;
-//        for (Certificate cert : certificates) {
-//            cert.setCertificateId(certId);
-//            String copiedPath = copyCertFile(cert);
-//            if (copiedPath == null) {
-//                System.out.println("Cannot Copy File for Certificate " + certId);
-//            } else {
-//                cert.setCertificateImage(copiedPath);
-//                cert.setEmployeeId(1);
-//            }
-//            certId++;
-//        }
-
+    public void insertFineToDb(Fine fine) throws SQLException {
+        boolean inserted = db.addNewFine(fine);
+        if (!inserted) {
+            System.out.println("Unable to Insert Fine with fineId = " + fine.getFineId());
+        }
     }
 
-    public void insertCertToDb(/*Certificate cert*/) {
-        final Task task = new Task() {
-            @Override
-            protected Object call() {
-//                try {
-//                    return db.addNewCertificate(cert);
-//                } catch (SQLException ex) {
-//                    ex.printStackTrace();
-//                }
-                return null;
-            }
-        };
-        task.setOnSucceeded((event) -> {
-            Object value = task.getValue();
-            if (value == null) {
-//                System.out.println("Unable to Insert Certificate with certId = " + cert.getCertificateId());
-            } else {
-                boolean inserted = (boolean) task.getValue();
-                if (!inserted) {
-//                    System.out.println("Unable to Insert Certificate with certId = " + cert.getCertificateId());
-                }
-            }
-        });
-        new Thread(task).start();
+    public void insertIntCourseToDb(Course course) throws SQLException {
+        boolean inserted = db.addNewIntCourse(course);
+        if (!inserted) {
+            System.out.println("Unable to Insert Interior Course with Id = " + course.getCourseId());
+        }
     }
 
-    public void insertFineToDb(Fine fine) {
-
-        final Task task = new Task() {
-            @Override
-            protected Object call() {
-                try {
-                    return db.addNewFine(fine);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                return null;
-            }
-        };
-        task.setOnSucceeded((event) -> {
-            Object value = task.getValue();
-            if (value == null) {
-                System.out.println("Unable to Insert Fine with fineId = " + fine.getFineId());
-            } else {
-                boolean inserted = (boolean) task.getValue();
-
-                if (!inserted) {
-                    System.out.println("Unable to Insert Fine with fineId = " + fine.getFineId());
-                }
-            }
-
-        });
-        new Thread(task).start();
+    public void insertExtCourseToDb(Course course) throws SQLException {
+        boolean inserted = db.addNewExtCourse(course);
+        if (!inserted) {
+            System.out.println("Unable to Insert Exterior Course with Id = " + course.getCourseId());
+        }
     }
 
     public String copyFineFile(Fine fine) {
-        int employeeId = 1;
         Path sourcePath = fine.getImageFile().toPath();
         String sDest = FINES_IMAGE_PATH + "fine_" + fine.getFineId() + "_" + employeeId + "." + getFileExtension(fine.getImageFile().getName());
-
         Path dest = Paths.get(sDest);
-
         try {
             Files.copy(sourcePath, dest, REPLACE_EXISTING);
             System.out.println(sDest);
@@ -489,25 +720,288 @@ public class EmployeeAddForm {
         return null;
     }
 
-    public String copyCertFile(/*Certificate cert*/) {
-//        int employeeId = 1;
-//        Path sourcePath = cert.getImageFile().toPath();
-//        String sDest = CERTS_IMAGE_PATH + "cert_" + cert.getCertificateId() + "_" + employeeId + "." + getFileExtension(cert.getImageFile().getName());
-//
-//        Path dest = Paths.get(sDest);
-//
-//        try {
-//            Files.copy(sourcePath, dest, REPLACE_EXISTING);
-//            System.out.println(sDest);
-//            return sDest;
-//
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
+    public String copyIntCourseFile(Course course) {
+        Path sourcePath = course.getImageFile().toPath();
+        String sDest = INT_IMAGE_PATH + "int_" + course.getCourseId() + "_" + employeeId + "." + getFileExtension(course.getImageFile().getName());
+        Path dest = Paths.get(sDest);
+        try {
+            Files.copy(sourcePath, dest, REPLACE_EXISTING);
+            return sDest;
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
         return null;
     }
 
-    String getFileExtension(String fileName) {
+    public String copyExtCourseFile(Course course) {
+        Path sourcePath = course.getImageFile().toPath();
+        String sDest = EXT_IMAGE_PATH + "ext_" + course.getCourseId() + "_" + employeeId + "." + getFileExtension(course.getImageFile().getName());
+        Path dest = Paths.get(sDest);
+        try {
+            Files.copy(sourcePath, dest, REPLACE_EXISTING);
+            return sDest;
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public String copyProfilePic() {
+        Path sourcePath = profilePicImage.toPath();
+        String sDest = PROFILE_IMAGE_PATH + "pic_" + employeeId + "." + getFileExtension(profilePicImage.getName());
+        Path dest = Paths.get(sDest);
+        try {
+            Files.copy(sourcePath, dest, REPLACE_EXISTING);
+            return sDest;
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private boolean selectRank() {
+        boolean rankSelected = false;
+        int index = controller.getRankCombo().getSelectionModel().getSelectedIndex();
+        String selectedName = controller.getRankCombo().getSelectionModel().getSelectedItem();
+        if (controller.getRankCombo().getItems().get(index).equalsIgnoreCase(selectedName)) {
+            rankIdSelected = allRanks.get(index).getRankId();
+            rankSelected = true;
+        } else {
+            if (selectedName.equals("")) {
+                MainSceneController.instance.showError("Rank not Selected");
+            } else {
+                Rank rank = new Rank();
+                rank.setRankName(controller.getRankCombo().getSelectionModel().getSelectedItem());
+                try {
+                    int lastInsertId = db.addNewRank(rank);
+                    if (lastInsertId > 0) {
+                        rankIdSelected = lastInsertId;
+                        rankSelected = true;
+                    } else {
+                        MainSceneController.instance.showError("Invalid Rank");
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return rankSelected;
+    }
+
+    boolean selectNationality() {
+        boolean nationSelected = false;
+        int index = controller.getNatComboAddForm().getSelectionModel().getSelectedIndex();
+        String selectedName = controller.getNatComboAddForm().getSelectionModel().getSelectedItem();
+        if (controller.getNatComboAddForm().getItems().get(index).equalsIgnoreCase(selectedName)) {
+            countryIdSelected = allCountries.get(index).getCountryId();
+            nationSelected = true;
+        } else {
+            if (selectedName.equals("")) {
+                MainSceneController.instance.showError("Nationality Not Mentioned");
+            } else {
+                Country country = new Country();
+                country.setCountry(controller.getNatComboAddForm().getSelectionModel().getSelectedItem());
+                try {
+                    int lastInsertId = db.addNewCountry(country);
+                    if (lastInsertId > 0) {
+                        countryIdSelected = lastInsertId;
+                        nationSelected = true;
+                    } else {
+                        MainSceneController.instance.showError("Invalid Nationality Value");
+                    }
+
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    MainSceneController.instance.showError(ex.getMessage());
+                }
+            }
+        }
+        return nationSelected;
+    }
+
+    public void processUpdateForm() {
+        if (selectRank()) {
+            if (selectNationality()) {
+                if (formValid()) {
+                    try {
+                        Employee employee = getDataModel();
+                        employee.setEmployeeId(employeeId);
+                        String profilePicPath = copyProfilePic();
+                        if (profilePicPath == null) {
+                            System.out.println("Error copying profile picture");
+                            MainSceneController.instance.showError("Unable to Update Employee Details");
+                            return;
+                        }
+                        employee.setEmpPic(profilePicPath);
+                        boolean updated = db.updateEmployee(employee);
+                        if (updated) {
+                            reProcessEntities(employeeId);
+                            MainSceneController.instance.showSuccess("Employee Details Saved.");
+                            gotoViewMode();
+                        } else {
+                            MainSceneController.instance.showError("Unable to Update Employee Details");
+                        }
+                    } catch (SQLIntegrityConstraintViolationException ex) {
+                        if (ex.getMessage().contains("svc")) {
+                            MainSceneController.instance.showError("Duplicate Entry for Service Number");
+                        } else {
+                            MainSceneController.instance.showError("Duplicate Entry for CPR Number");
+                        }
+                        ex.printStackTrace();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }
+
+    }
+
+    void reProcessEntities(int employeeId) throws SQLException {
+        db.deleteAllFines(employeeId);
+        db.deleteAllIntCourses(employeeId);
+        db.deleteAllExtCourses(employeeId);
+        processFines();
+        processIntCourses();
+        processExtCourses();
+
+    }
+
+    public void processAddForm() {
+
+        if (selectRank()) {
+            if (selectNationality()) {
+                if (formValid()) {
+                    try {
+                        Employee employee = getDataModel();
+                        employeeId = db.addNewEmployee(employee);
+                        employee.setEmployeeId(employeeId);
+                        String profilePicPath = copyProfilePic();
+                        if (profilePicPath == null) {
+                            System.out.println("Error copying profile picture");
+                            MainSceneController.instance.showError("Unable to Register Employee");
+                            return;
+                        }
+                        employee.setEmpPic(profilePicPath);
+                        db.updateEmployee(employee);
+                        processFines();
+                        processIntCourses();
+                        processExtCourses();
+                        MainSceneController.instance.showSuccess("Employee Registered.");
+                        resetForm();
+
+                    } catch (SQLIntegrityConstraintViolationException ex) {
+                        if (ex.getMessage().contains("svc")) {
+                            MainSceneController.instance.showError("Duplicate Entry for Service Number");
+                        } else {
+                            MainSceneController.instance.showError("Duplicate Entry for CPR Number");
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        MainSceneController.instance.showError("Unable to Register Employee");
+
+                    }
+                }
+            }
+        }
+    }
+
+    void resetForm() {
+        controller.getSvcNumField().setText("");
+        controller.getNameField().setText("");
+        controller.getCprField().setText("");
+        controller.getAddressField().setText("");
+        controller.getMobileField().setText("");
+        controller.getRelContactField().setText("");
+        controller.getDojField().setValue(null);
+        controller.getLastRankField().setValue(null);
+        controller.getDutyField().setText("");
+        initObjects();
+
+    }
+
+    boolean formValid() {
+        String txt = controller.getSvcNumField().getText();
+        if (txt.equals("")) {
+            MainSceneController.instance.showError("Please Enter Service Number");
+            return false;
+        }
+        txt = controller.getNameField().getText();
+        if (txt.equals("")) {
+            MainSceneController.instance.showError("Please Enter Employee Name");
+            return false;
+        }
+        txt = controller.getCprField().getText();
+        if (txt.equals("")) {
+            MainSceneController.instance.showError("Please Enter CPR Number");
+            return false;
+        }
+        txt = controller.getAddressField().getText();
+        if (txt.equals("")) {
+            MainSceneController.instance.showError("Please Enter Address");
+            return false;
+        }
+        txt = controller.getMobileField().getText();
+        if (txt.equals("")) {
+            MainSceneController.instance.showError("Please Enter Mobile Number");
+            return false;
+        }
+        txt = controller.getRelContactField().getText();
+        if (txt.equals("")) {
+            MainSceneController.instance.showError("Please Enter Contact Number of Relative");
+            return false;
+        }
+        LocalDate dValue = controller.getDojField().getValue();
+        if (dValue == null) {
+            MainSceneController.instance.showError("Please Select Date of Joining");
+            return false;
+        }
+        dValue = controller.getLastRankField().getValue();
+        if (dValue == null) {
+            MainSceneController.instance.showError("Please Select Last Rank Date");
+            return false;
+        }
+        txt = controller.getDutyField().getText();
+        if (txt.equals("")) {
+            MainSceneController.instance.showError("Please Enter Duty");
+            return false;
+        }
+        if (profilePicImage == null) {
+            MainSceneController.instance.showError("Please Select Picture of Employee");
+            return false;
+        }
+        return true;
+
+    }
+
+    public Employee getDataModel() {
+        Employee employee = new Employee();
+        employee.setSvcNum(controller.getSvcNumField().getText());
+        employee.setRankId(rankIdSelected);
+        employee.setEmpName(controller.getNameField().getText());
+        employee.setCprNum(controller.getCprField().getText());
+        employee.setAddress(controller.getAddressField().getText());
+        employee.setCountryId(countryIdSelected);
+        employee.setMobile(controller.getMobileField().getText());
+        employee.setRelContact(controller.getRelContactField().getText());
+        employee.setRelRelation(controller.getRelComboAddForm().getSelectionModel().getSelectedItem());
+        employee.setBloodGroup(controller.getBloodGpCombo().getSelectionModel().getSelectedItem());
+        employee.setDoj(controller.getDojField().getValue().toString());
+        employee.setLastRankDate(controller.getLastRankField().getValue().toString());
+        employee.setDuty(controller.getDutyField().getText());
+        employee.setLeaveDays(controller.getLeaveDaysField().getText());
+        employee.setLeaveType(controller.getLeavesCombo().getSelectionModel().getSelectedItem());
+        employee.setMaritalStatus(controller.getMaritalCombo().getSelectionModel().getSelectedItem());
+
+//        employee.setEmpPic(profilePicPath);
+        System.out.println(employee);
+        return employee;
+    }
+
+    private String getFileExtension(String fileName) {
         String extension = "";
 
         int i = fileName.lastIndexOf('.');
@@ -517,7 +1011,7 @@ public class EmployeeAddForm {
         return extension;
     }
 
-    File getImageSelection() {
+    private File getImageSelection() {
         FileChooser fileChooser = new FileChooser();
 
         //Set extension filter
@@ -528,4 +1022,5 @@ public class EmployeeAddForm {
         //Show open file dialog
         return fileChooser.showOpenDialog(null);
     }
+
 }

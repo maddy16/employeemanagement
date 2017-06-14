@@ -7,8 +7,11 @@ package com.viremp.employeemanagement.db;
 
 
 import com.viremp.employeemanagement.models.Course;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +27,23 @@ public class ExteriorCourses {
     
     public static boolean insertNewExteriorCourse(Course course) throws SQLException{
         return GenericDB.insert(TABLE, getValuesMap(course));
+    }
+    public static boolean deleteAllExtCourses(int employeeId) throws SQLException{
+        String sql = "DELETE FROM "+TABLE+" where "+COL_EMPLOYEE_ID+" = " + employeeId;
+        return GenericDB.executeUpdate(sql);
+    }
+    public static List<Course> getAllExteriorCourses(int employeeId) throws SQLException{
+        ResultSet rs = GenericDB.query(TABLE, null, COL_EMPLOYEE_ID+" = ?", new Object[]{employeeId}, null);
+        List<Course> list = new ArrayList<>();
+        while(rs.next()){
+            Course course = new Course();
+            course.setEmployeeId(employeeId);
+            course.setCourseId(rs.getInt(COL_COURSE_ID));
+            course.setCourseImage(rs.getString(COL_COURSE_IMAGE));
+            course.setCourseName(rs.getString(COL_COURSE_NAME));
+            list.add(course);
+        }
+        return list;
     }
     private static Map<String,Object> getValuesMap(Course course){
         Map<String,Object> values = new HashMap<>();

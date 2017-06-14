@@ -43,6 +43,9 @@ public class MainSceneController implements Initializable {
         instance = this;
     }
 
+    public void loadEmployeesView() throws IOException{
+        MainApp.loadScene("/fxml/EmployeeScene.fxml", null, contentPane, bundle);
+    }
     @FXML
     void settingsBtnClicked(ActionEvent event) throws IOException {
         toggleButton(event);
@@ -52,7 +55,7 @@ public class MainSceneController implements Initializable {
     @FXML
     void employeesBtnClicked(ActionEvent event) throws IOException{
         toggleButton(event);
-        MainApp.loadScene("/fxml/EmployeeScene.fxml", null, contentPane, bundle);
+        loadEmployeesView();
     }
 
     void toggleButton(ActionEvent event) {

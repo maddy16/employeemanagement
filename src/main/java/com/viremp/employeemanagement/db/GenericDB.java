@@ -65,6 +65,31 @@ public class GenericDB {
         return executeUpdate(generateInsertQry(tableName, values));
     }
 
+    static int insertReturningId(String tableName, Map<String, Object> values) throws SQLException {
+        int lastInsertId = 0;
+        Statement stmt = null;
+        try {
+            connect();
+            stmt = con.createStatement();
+            int updateCount = stmt.executeUpdate(generateInsertQry(tableName, values),Statement.RETURN_GENERATED_KEYS);
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                lastInsertId = rs.getInt(1);
+            }
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            try {
+                stmt.close();
+                con.close();
+            } catch (SQLException ex) {
+                throw ex;
+            }
+
+        }
+        return lastInsertId;
+    }
+
     static String generateInsertQry(String tableName, Map<String, Object> values) {
         metaQry = "INSERT INTO " + tableName + "(";
         valQry = " VALUES(";

@@ -9,7 +9,9 @@ import com.viremp.employeemanagement.models.Country;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -31,5 +33,25 @@ public class Countries {
             countries.add(country);
         }
         return countries;
+    }
+    public static int addNewCountry(Country country)throws SQLException {
+        return GenericDB.insertReturningId(TABLE, getValuesMap(country));
+    }
+    public static Country getByName(String name) throws SQLException{
+        ResultSet rs = GenericDB.query(TABLE, null, COL_COUNTRY +" = ?", new Object[]{name}, null);
+        Country country = null;
+        if(rs.next()){
+            country = new Country();
+            country.setCountry(name);
+            country.setCountryId(rs.getInt(COL_COUNTRY_ID));
+        }
+        return country;
+    }
+    private static Map<String,Object> getValuesMap(Country country){
+        Map<String,Object> values = new HashMap<>();
+        values.put(COL_COUNTRY_ID, country.getCountryId());
+        values.put(COL_COUNTRY, country.getCountry());
+        return values;
+        
     }
 }
